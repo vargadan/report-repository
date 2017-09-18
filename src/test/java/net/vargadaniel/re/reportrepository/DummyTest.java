@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class RepoTest {
+public class DummyTest {
 	
 	@Test
 	public void testTrue() {
