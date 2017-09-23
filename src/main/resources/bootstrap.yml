@@ -1,9 +1,9 @@
 spring:
    application:
       name: report-repository
-   rabbitmq:
-      addresses: rabbitmq
    cloud:
+      config:
+         uri: http://report-config-server:8080/
       stream:
         bindings:
           products:
@@ -26,11 +26,3 @@ spring:
             binder:
               nodes: rabbitmq
               adminAddresses: rabbitmq
-security:
-  oauth2:
-    resource:
-      userInfoUri: http://identity-service:8080/user		
-logging:
-    level:
-      org.springframework: INFO
-      org.springframework.security: DEBUG
