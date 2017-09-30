@@ -8,6 +8,7 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +19,7 @@ import net.vargadaniel.re.reportrepository.model.Report;
 @SpringBootApplication
 @RestController
 @EnableBinding(ReportEngine.class)
+@EnableResourceServer
 public class ReportRepoApp {
 	
 	@Autowired
