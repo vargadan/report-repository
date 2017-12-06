@@ -57,7 +57,7 @@ public class ReportRepoApp {
 	
 	@RequestMapping(path="/files/{id}", method=RequestMethod.GET, produces="text/plain")
 	ResponseEntity<String> getFile(@PathVariable("id") Long id, @AuthenticationPrincipal Principal principal) {
-		logger.debug("calling /files/{}.pdf with princiapl:{}", id, principal.getName());
+		logger.info("calling /files/{}.pdf with princiapl:{}", id, principal.getName());
 		Report report = reportRepository.findOne(id);
 		if (report == null) {
 			return new ResponseEntity<>("No report found with ID " + id, HttpStatus.NOT_FOUND);
