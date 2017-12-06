@@ -1,5 +1,9 @@
 package net.vargadaniel.re.reportrepository;
 
+import java.security.Principal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,6 +12,8 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +27,8 @@ import net.vargadaniel.re.reportrepository.model.Report;
 @EnableBinding(ReportEngine.class)
 @EnableResourceServer
 public class ReportRepoApp {
+	
+	final static Logger logger = LoggerFactory.getLogger(ReportRepoApp.class);
 	
 	@Autowired
 	ReportRepository reportRepository;
@@ -48,7 +56,8 @@ public class ReportRepoApp {
 
 	
 	@RequestMapping(path="/files/{id}", method=RequestMethod.GET, produces="text/plain")
-	ResponseEntity<String> getFile(@PathVariable("id") Long id) {
+	ResponseEntity<String> getFile(@PathVariable("id") Long id, @AuthenticationPrincipal Principal principal) {
+		logger.debug("calling /files/{}.pdf with princiapl:{}", id, principal.getName());
 		Report report = reportRepository.findOne(id);
 		if (report == null) {
 			return new ResponseEntity<>("No report found with ID " + id, HttpStatus.NOT_FOUND);
