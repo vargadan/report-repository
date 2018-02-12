@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Report {
 	
-	private String id;
+	private Long id;
 	
 	private String orderId;
 	
@@ -20,11 +20,11 @@ public class Report {
 
 	@Id
 	@GeneratedValue
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

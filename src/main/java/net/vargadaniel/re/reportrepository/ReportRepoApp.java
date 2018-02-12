@@ -1,6 +1,7 @@
 package net.vargadaniel.re.reportrepository;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,14 +73,17 @@ public class ReportRepoApp {
 
 	
 	@RequestMapping(path="/files/{id}", method=RequestMethod.GET, produces="text/plain")
-	ResponseEntity<String> getFile(@PathVariable("id") String id, @AuthenticationPrincipal Principal principal) {
-		logger.info("calling /files/{}.pdf with princiapl:{}", id, principal.getName());
-		Report report = reportRepository.findOne(id);
-		if (report == null) {
-			return new ResponseEntity<>("No report found with ID " + id, HttpStatus.NOT_FOUND);
-		} 
-		String content = new String(report.getContent());
-		return new ResponseEntity<>(content, HttpStatus.OK);
+	ResponseEntity<String> getFile(@PathVariable("id") String orderId, @AuthenticationPrincipal Principal principal) {
+		logger.info("calling /files/{}.pdf with princiapl:{}", orderId, principal.getName());
+		List<Report> reports = reportRepository.findByOrderId(orderId);
+		if (reports == null || reports.isEmpty()) {
+			return new ResponseEntity<>("No report found with ID " + orderId, HttpStatus.NOT_FOUND);
+		} else if (reports.size() == 1) {
+			String content = new String(reports.get(0).getContent());
+			return new ResponseEntity<>(content, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(reports.size() + " reports found for orderId " + orderId, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	static class StatusUpdate {
