@@ -12,7 +12,6 @@ import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +47,7 @@ public class ReportRepoApp {
 		String payLoad = message.getPayload();
 		
 		Report report = new Report();
-		report.setOrderId(Long.valueOf(orderId.toString()));	
+		report.setOrderId(orderId.toString());	
 		report.setContent(payLoad.getBytes());
 		
 		reportRepository.save(report);
