@@ -11,13 +11,13 @@ import net.vargadaniel.re.reportrepository.model.Report;
 
 @Component
 @RepositoryRestResource(collectionResourceRel = "reports", path = "reports")
-public interface ReportRepository extends PagingAndSortingRepository<Report, Long> {
+public interface ReportRepository extends PagingAndSortingRepository<Report, String> {
 	
-	List<Report> findByOrderId(Long orderId);
+	List<Report> findByOrderId(String orderId);
 
 	@Override
 	@RestResource(exported=false)
-	void delete(Long id);
+	void delete(String id);
 	
 	@Override
 	@RestResource(exported=false)

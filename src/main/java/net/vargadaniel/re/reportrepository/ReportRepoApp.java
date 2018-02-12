@@ -11,6 +11,7 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -32,6 +33,9 @@ public class ReportRepoApp {
 	@Autowired
 	ReportRepository reportRepository;
 	
+	@Autowired
+	ReportEngine reportEngine;
+	
 	public static void main(String[] args) {
 		String k8sNamespace = System.getenv("KUBERNETES_NAMESPACE");
 		if (k8sNamespace != null) {
@@ -44,18 +48,31 @@ public class ReportRepoApp {
 	@StreamListener(ReportEngine.REPORT_FILES)
 	void saveReport(Message<String> message) {
 		Object orderId = message.getHeaders().get("orderId");
-		String payLoad = message.getPayload();
+		try {
+			String payLoad = message.getPayload();
+			
+			Report report = new Report();
+			report.setOrderId(orderId.toString());	
+			report.setContent(payLoad.getBytes());
+			
+			reportRepository.save(report);
+			statusUpdate(orderId.toString(), "report saved"); 
+		} catch (Exception e) {
+			statusUpdate(orderId.toString(), "Could not save : " + e.getMessage());
+			throw e;
+		}
 		
-		Report report = new Report();
-		report.setOrderId(orderId.toString());	
-		report.setContent(payLoad.getBytes());
-		
-		reportRepository.save(report);
+	}
+	
+	void statusUpdate(String orderId, String status) {
+		logger.info("statusupdate for orderId " + orderId + " status : " + status);
+		reportEngine.statusUpdates()
+				.send(MessageBuilder.withPayload(new StatusUpdate(orderId, status)).build());
 	}
 
 	
 	@RequestMapping(path="/files/{id}", method=RequestMethod.GET, produces="text/plain")
-	ResponseEntity<String> getFile(@PathVariable("id") Long id, @AuthenticationPrincipal Principal principal) {
+	ResponseEntity<String> getFile(@PathVariable("id") String id, @AuthenticationPrincipal Principal principal) {
 		logger.info("calling /files/{}.pdf with princiapl:{}", id, principal.getName());
 		Report report = reportRepository.findOne(id);
 		if (report == null) {
@@ -63,6 +80,28 @@ public class ReportRepoApp {
 		} 
 		String content = new String(report.getContent());
 		return new ResponseEntity<>(content, HttpStatus.OK);
+	}
+	
+	static class StatusUpdate {
+		
+		public String getOrderId() {
+			return orderId;
+		}
+
+		public String getStatus() {
+			return status;
+		}
+
+		public StatusUpdate(String orderId, String status) {
+			super();
+			this.orderId = orderId;
+			this.status = status;
+		}
+
+		final String orderId;
+		
+		final String status;
+		
 	}
 
 }
